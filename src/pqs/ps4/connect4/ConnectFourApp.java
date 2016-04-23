@@ -18,7 +18,7 @@ public class ConnectFourApp {
 
   public void startGame() {
     Model model = new Model();
-    new View(model, Config.PLAYERTYPE.PRIMARY, Config.COLOR.YELLOW);
+    new View(model, "A", Config.PLAYERTYPE.PRIMARY, Config.COLOR.RED);
     model.startGame();
   }
   

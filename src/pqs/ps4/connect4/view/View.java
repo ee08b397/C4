@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
 import pqs.ps4.connect4.model.Config;
 import pqs.ps4.connect4.model.Model;
@@ -33,21 +34,25 @@ public class View implements Listener {
   private JButton twoPlayerButton;
   private JButton quitGameButton;
   
-  public View(Model model, Config.PLAYERTYPE playerType, Config.COLOR color) {
+  public View(Model model, String name, Config.PLAYERTYPE playerType, 
+      Config.COLOR color) {
+    
     this.model = model;
     model.addListener(this);
-    player = new Player("A", "A", playerType, color);
+    player = new Player(name, name, playerType, color);
+    model.addPlayer(player);
     
     frame = new JFrame("Connect Four");
     gamePanel = new JPanel(new BorderLayout());
     dropPanel = new JPanel(new GridLayout(1, Config.NUM_COL));
-    dropPanel.setVisible(false);
+    if (playerType == Config.PLAYERTYPE.PRIMARY) {
+      dropPanel.setVisible(false);
+    }
     dropButtonList = new JButton[Config.NUM_COL];
     
     for (int col = 0; col < dropButtonList.length; col++) {
       dropButtonList[col] = new JButton("Drop " + col);
       dropButtonList[col].addActionListener(new ActionListener() {
-        
         public void actionPerformed(ActionEvent event) {
           String[] dropCmd = event.getActionCommand().split(" ");
           dropButtonClicked(Integer.parseInt(dropCmd[1]));
@@ -78,6 +83,7 @@ public class View implements Listener {
     onePlayerButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
         initializePanel();
+        modeButtonClicked(Config.PLAYMODE.SINGLE);
         statusLabel.setText("1-player game");
       }
     });
@@ -85,9 +91,15 @@ public class View implements Listener {
     twoPlayerButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
         initializePanel();
+        modeButtonClicked(Config.PLAYMODE.MULTI);
         statusLabel.setText("2-player game");
       }
     });
+    
+    if (playerType == Config.PLAYERTYPE.PLAY) {
+      onePlayerButton.setVisible(false);
+      twoPlayerButton.setVisible(false);
+    }
     
     quitGameButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
@@ -109,17 +121,36 @@ public class View implements Listener {
     frame.setVisible(true);
   }
   
+  private void modeButtonClicked(Config.PLAYMODE mode) {
+    model.modeUpdate(mode, player);
+  }
+  
   private void dropButtonClicked(int col) {
     model.dropDisc(this.player, col);
+    lockDropPanel();
   }
   
   private void initializePanel() {
     unlockDropPanel();
+    for (JPanel[] rowList : cellList) {
+      for (JPanel cell : rowList) {
+        cell.setBackground(UIManager.getColor("Panel.background"));
+      }
+    }
     statusLabel.setText("Hello");
   }
   
   private void unlockDropPanel() {
     dropPanel.setVisible(true);
+    for (JButton dropButton : dropButtonList) {
+      dropButton.setEnabled(true);
+    }
+  }
+  
+  private void lockDropPanel() {
+    for (JButton dropButton : dropButtonList) {
+      dropButton.setEnabled(false);
+    }
   }
   
   @Override
@@ -138,15 +169,27 @@ public class View implements Listener {
   }
 
   @Override
-  public void modeUpdate(Config.PLAYMODE modeUpdate) {
-    
+  public void modeUpdated(Config.PLAYMODE modeUpdate) {
+    initializePanel();
+    if (modeUpdate == Config.PLAYMODE.SINGLE && player.getPlayerType() == 
+        Config.PLAYERTYPE.PLAY) {
+      
+      model.removeListener(this);
+      model.removePlayer(player);
+      frame.dispose();
+    }
   }
 
   @Override
   public void discDropped(Player player, int row, int col) {
-    this.cellList[row][col].setBackground(Color.RED);
+    this.cellList[row][col].setBackground(player.getColor());
+    statusLabel.setText(String.format("%s at [%d,%d]", player.getPlayerName(), 
+        row, col));
     if (row == 0) {
       dropButtonList[col].setEnabled(false);
+    }
+    if (player != this.player) {
+      unlockDropPanel();
     }
   }
 }

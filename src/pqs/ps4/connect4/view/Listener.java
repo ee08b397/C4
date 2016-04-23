@@ -7,7 +7,7 @@ public interface Listener {
   
   void gameStarted();
   void discDropped(Player player, int row, int col);
-  void modeUpdate(Config.PLAYMODE modeUpdate);
+  void modeUpdated(Config.PLAYMODE modeUpdate);
   void win(Player player);
   void draw();
   

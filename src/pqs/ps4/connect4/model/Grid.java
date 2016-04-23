@@ -7,11 +7,7 @@ public class Grid {
   
   private Grid() {
     grid = new String[Config.NUM_ROW][Config.NUM_COL];
-    for (int row = 0; row < grid.length; row++) {
-      for (int col = 0; col < grid[row].length; col++) {
-        grid[row][col] = "";
-      }
-    }
+    initialize();
   }
 
   public static Grid getInstance() {
@@ -26,5 +22,13 @@ public class Grid {
       }
     }
     return -1;
+  }
+
+  public void initialize() {
+    for (int row = 0; row < grid.length; row++) {
+      for (int col = 0; col < grid[row].length; col++) {
+        grid[row][col] = "";
+      }
+    }
   }
 }
