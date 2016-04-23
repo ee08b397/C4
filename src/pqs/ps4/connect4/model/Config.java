@@ -10,7 +10,7 @@ public class Config {
   public final static int NUM_ROW = 6;
   
   public enum PLAYERTYPE {
-    PRIMARY, PLAY, WATCH;
+    PRIMARY, PLAY, COMPUTER, WATCH;
   }
   
   public enum PLAYMODE {

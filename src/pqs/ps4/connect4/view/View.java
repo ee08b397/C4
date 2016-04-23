@@ -33,6 +33,7 @@ public class View implements Listener {
   private JButton onePlayerButton;
   private JButton twoPlayerButton;
   private JButton quitGameButton;
+  private boolean[] colFilled; 
   
   public View(Model model, String name, Config.PLAYERTYPE playerType, 
       Config.COLOR color) {
@@ -40,7 +41,7 @@ public class View implements Listener {
     this.model = model;
     model.addListener(this);
     player = new Player(name, name, playerType, color);
-    model.addPlayer(player);
+    this.model.addPlayer(player);
     
     frame = new JFrame("Connect Four");
     gamePanel = new JPanel(new BorderLayout());
@@ -48,8 +49,9 @@ public class View implements Listener {
     if (playerType == Config.PLAYERTYPE.PRIMARY) {
       dropPanel.setVisible(false);
     }
-    dropButtonList = new JButton[Config.NUM_COL];
     
+    dropButtonList = new JButton[Config.NUM_COL];
+    colFilled = new boolean[Config.NUM_COL]; 
     for (int col = 0; col < dropButtonList.length; col++) {
       dropButtonList[col] = new JButton("Drop " + col);
       dropButtonList[col].addActionListener(new ActionListener() {
@@ -59,6 +61,7 @@ public class View implements Listener {
         }
       });
       dropPanel.add(dropButtonList[col]);
+      this.colFilled[col] = false;
     }
     
     gridPanel = new JPanel(new GridLayout(
@@ -126,11 +129,14 @@ public class View implements Listener {
   }
   
   private void dropButtonClicked(int col) {
-    model.dropDisc(this.player, col);
     lockDropPanel();
+    model.dropDisc(this.player, col);
   }
   
   private void initializePanel() {
+    for (boolean col : this.colFilled) {
+      col = false;
+    }
     unlockDropPanel();
     for (JPanel[] rowList : cellList) {
       for (JPanel cell : rowList) {
@@ -142,8 +148,10 @@ public class View implements Listener {
   
   private void unlockDropPanel() {
     dropPanel.setVisible(true);
-    for (JButton dropButton : dropButtonList) {
-      dropButton.setEnabled(true);
+    for (int col = 0; col < dropButtonList.length; col++) {
+      if (this.colFilled[col] == false) {
+        dropButtonList[col].setEnabled(true);
+      }
     }
   }
   
@@ -165,7 +173,7 @@ public class View implements Listener {
 
   @Override
   public void win(Player player) {
-    
+    dropPanel.setVisible(false);
   }
 
   @Override
@@ -174,8 +182,8 @@ public class View implements Listener {
     if (modeUpdate == Config.PLAYMODE.SINGLE && player.getPlayerType() == 
         Config.PLAYERTYPE.PLAY) {
       
-      model.removeListener(this);
       model.removePlayer(player);
+      model.removeListener(this);
       frame.dispose();
     }
   }
@@ -186,7 +194,7 @@ public class View implements Listener {
     statusLabel.setText(String.format("%s at [%d,%d]", player.getPlayerName(), 
         row, col));
     if (row == 0) {
-      dropButtonList[col].setEnabled(false);
+      this.colFilled[col] = true;
     }
     if (player != this.player) {
       unlockDropPanel();

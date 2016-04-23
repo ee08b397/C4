@@ -1,5 +1,7 @@
 package pqs.ps4.connect4.model;
 
+import java.util.Random;
+
 public class Grid {
   
   private final static Grid instance = new Grid();
@@ -29,6 +31,52 @@ public class Grid {
       for (int col = 0; col < grid[row].length; col++) {
         grid[row][col] = "";
       }
+    }
+  }
+
+  public Coord dropDiscComputer(Player computer) {
+    Coord winDrop = checkWinDrop();
+    if (winDrop == null) {
+      Random random = new Random();
+      int randCol = random.nextInt(Config.NUM_COL);
+      int row = -1;
+      while (row == -1) {
+        randCol = random.nextInt(Config.NUM_COL);
+        row = dropDisc(computer, randCol);
+      }
+      return new Coord(row, randCol);
+    }
+    return null;
+  }
+
+  private Coord checkWinDrop() {
+    return null;
+  }
+  
+  public class Coord {
+    
+    private final int row;
+    private final int col;
+    
+    public Coord(int row, int col) {
+      if (row >= 0 && row < Config.NUM_ROW && col >= 0 
+          && col < Config.NUM_COL) {
+        
+        this.row = row;
+        this.col = col;  
+      }
+      else {
+        throw new IllegalArgumentException(String.format(
+            "Illegal coordinate row: %d, col: %d. ", row, col));
+      }
+    }
+
+    public int getRow() {
+      return new Integer(this.row);
+    }
+
+    public int getCol() {
+      return new Integer(this.col);
     }
   }
 }

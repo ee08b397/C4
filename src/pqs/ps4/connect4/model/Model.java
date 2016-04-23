@@ -13,6 +13,9 @@ public class Model {
   private List<Listener> listeners = new ArrayList<Listener>();
   private List<Player> players = new ArrayList<Player>();
   private Grid grid = Grid.getInstance();
+  private Player computer = new Player("C", "C", Config.PLAYERTYPE.COMPUTER, 
+      Config.COLOR.BLUE);
+  private Config.PLAYMODE currentMode = Config.PLAYMODE.SINGLE;
   
   public void addListener(Listener listener) {
     listeners.add(listener);
@@ -47,25 +50,65 @@ public class Model {
         lisenter.discDropped(player, droppedRow, col);
       }
     }
+    
+    if (this.currentMode == Config.PLAYMODE.SINGLE) {
+      try {
+        Thread.sleep(50);
+      } catch (InterruptedException ignored) {
+      }
+      
+      Grid.Coord droppedComputer = this.grid.dropDiscComputer(this.computer);
+      for (Listener lisenter: listeners) {
+        lisenter.discDropped(this.computer, droppedComputer.getRow(), 
+            droppedComputer.getCol());
+      }
+    }
   }
 
   public void addPlayer(Player player) {
-    players.add(player);
+    this.players.add(player);
   }
   
   public void removePlayer(Player player) {
-    players.remove(player);
+    this.players.remove(player);
+  }
+  
+  private void addComputerPlayer() {
+    this.players.add(this.computer);
+  }
+  
+  private void removeComputerPlayer() {
+    this.players.remove(this.computer);
   }
 
   public void modeUpdate(Config.PLAYMODE mode, Player player) {
     this.grid.initialize();
-    if (mode == Config.PLAYMODE.MULTI) {
-      if (players.size() < 2) {
-        new View(this, "B", Config.PLAYERTYPE.PLAY, Config.COLOR.YELLOW);
+    
+    // switch from single to multiple mode
+    if (this.currentMode != mode) {
+      switch(mode) {
+        case MULTI:
+            currentMode = Config.PLAYMODE.MULTI;
+            removeComputerPlayer();
+            new View(this, "B", Config.PLAYERTYPE.PLAY, Config.COLOR.YELLOW);
+          break;
+        case SINGLE:
+          currentMode = Config.PLAYMODE.SINGLE;
+            // PLAY Views will remove themselves in modeUpdated()
+            addComputerPlayer();
+          break;
+        default:
+          throw new IllegalArgumentException("Unknown Config.PLAYMODE");
       }
     }
+    
     for (Listener lisenter: listeners) {
       lisenter.modeUpdated(mode);
     }
   }
 }
+
+
+
+
+
