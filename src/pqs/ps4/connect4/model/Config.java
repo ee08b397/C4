@@ -9,12 +9,18 @@ public class Config {
   public final static int NUM_COL = 7;
   public final static int NUM_ROW = 6;
   
+  public final static int WIN_NUM = 4;
+  
   public enum PLAYERTYPE {
     PRIMARY, PLAY, COMPUTER, WATCH;
   }
   
   public enum PLAYMODE {
     SINGLE, MULTI;
+  }
+  
+  public enum PLAYRESULT {
+    WIN, DRAW, GO;
   }
   
   public enum COLOR {

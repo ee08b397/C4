@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import pqs.ps4.connect4.model.Config.PLAYMODE;
 import pqs.ps4.connect4.view.Listener;
 import pqs.ps4.connect4.view.View;
 
@@ -45,24 +44,54 @@ public class Model {
   
   public void dropDisc(Player player, int col) {
     int droppedRow = this.grid.dropDisc(player, col);
+    boolean go = true;
     if (droppedRow > -1) {
       for (Listener lisenter: listeners) {
         lisenter.discDropped(player, droppedRow, col);
       }
+      
+      Coord dropCoord = new Coord(droppedRow, col); 
+      go = checkResult(player, dropCoord);
     }
     
-    if (this.currentMode == Config.PLAYMODE.SINGLE) {
+    if (this.currentMode == Config.PLAYMODE.SINGLE && go) {
       try {
         Thread.sleep(50);
       } catch (InterruptedException ignored) {
       }
       
-      Grid.Coord droppedComputer = this.grid.dropDiscComputer(this.computer);
+      Coord droppedComputer = this.grid.dropDiscComputer(this.computer);
       for (Listener lisenter: listeners) {
         lisenter.discDropped(this.computer, droppedComputer.getRow(), 
             droppedComputer.getCol());
       }
+      
+      Coord dropCoord = new Coord(droppedComputer.getRow(), 
+          droppedComputer.getCol()); 
+      checkResult(this.computer, dropCoord);
     }
+  }
+  
+  private boolean checkResult(Player player, Coord dropCoord) {
+    Config.PLAYRESULT result = this.grid.checkAllConditions(player, dropCoord);
+    switch(result) {
+      case WIN:
+        for (Listener lisenter: listeners) {
+          lisenter.win(player);
+        }
+        return false;
+      case DRAW:
+        for (Listener lisenter: listeners) {
+          lisenter.draw();
+        }
+        return false;
+      case GO:
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown Config.PLAYRESULT " + 
+            result);
+    }
+    return true;
   }
 
   public void addPlayer(Player player) {
@@ -107,8 +136,3 @@ public class Model {
     }
   }
 }
-
-
-
-
-

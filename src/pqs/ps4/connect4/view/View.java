@@ -134,8 +134,8 @@ public class View implements Listener {
   }
   
   private void initializePanel() {
-    for (boolean col : this.colFilled) {
-      col = false;
+    for (int index = 0; index < this.colFilled.length; index++) {
+      this.colFilled[index] = false;
     }
     unlockDropPanel();
     for (JPanel[] rowList : cellList) {
@@ -173,6 +173,7 @@ public class View implements Listener {
 
   @Override
   public void win(Player player) {
+    statusLabel.setText(player.getPlayerName() + " won!");
     dropPanel.setVisible(false);
   }
 

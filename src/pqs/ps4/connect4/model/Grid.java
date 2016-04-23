@@ -35,48 +35,161 @@ public class Grid {
   }
 
   public Coord dropDiscComputer(Player computer) {
-    Coord winDrop = checkWinDrop();
+    Coord winDrop = checkWinDrop(computer);
     if (winDrop == null) {
       Random random = new Random();
-      int randCol = random.nextInt(Config.NUM_COL);
       int row = -1;
+      int randCol = random.nextInt(Config.NUM_COL);
       while (row == -1) {
         randCol = random.nextInt(Config.NUM_COL);
         row = dropDisc(computer, randCol);
       }
       return new Coord(row, randCol);
     }
-    return null;
+    return winDrop;
   }
 
-  private Coord checkWinDrop() {
+  private Coord checkWinDrop(Player player) {
+    for (int row = 0; row < Config.NUM_ROW; row++) {
+      for (int col = 0; col < Config.NUM_COL; col++) {
+        if (grid[row][col].equals("")) {
+          //grid[row][col] = player.getPlayerName();
+          //return new Coord(row, col);
+        }
+      }
+    } 
     return null;
   }
   
-  public class Coord {
-    
-    private final int row;
-    private final int col;
-    
-    public Coord(int row, int col) {
-      if (row >= 0 && row < Config.NUM_ROW && col >= 0 
-          && col < Config.NUM_COL) {
-        
-        this.row = row;
-        this.col = col;  
-      }
-      else {
-        throw new IllegalArgumentException(String.format(
-            "Illegal coordinate row: %d, col: %d. ", row, col));
+  public Config.PLAYRESULT checkAllConditions(Player player, Coord drop) {
+    if (checkVertical(player, drop) || checkHorizontal(player, drop) ||
+        checkDiagonal(player, drop)) {
+      
+      return Config.PLAYRESULT.WIN;
+    }
+    if (checkDraw()) {
+      return Config.PLAYRESULT.DRAW;
+    }
+    return Config.PLAYRESULT.GO;
+  }
+  
+  private boolean checkDraw() {
+    int emptySlotNum = 0;
+    for (int row = 0; row < Config.NUM_ROW; row++) {
+      for (int col = 0; col < Config.NUM_COL; col++) {
+        if (grid[row][col].equals("")) {
+          emptySlotNum++;
+        }
       }
     }
-
-    public int getRow() {
-      return new Integer(this.row);
+    if (emptySlotNum == 0) {
+      return true;
     }
-
-    public int getCol() {
-      return new Integer(this.col);
+    else {
+      return false;
     }
   }
+
+  private boolean checkDiagonal(Player player, Coord drop) {
+    int straight = 0;
+    int dropRow = drop.getRow();
+    int dropCol = drop.getCol();
+    int row = 0;
+    int col = 0;
+    
+    // check top-left to bottom-right from top-left point
+    if (dropRow >= dropCol) {
+      row = 0;
+      col = dropRow - dropCol;
+    }
+    else {
+      row = dropCol - dropRow;
+      col = 0;
+    }
+    while (row < Config.NUM_ROW && col < Config.NUM_COL &&
+        row >= 0 && col >=0) {
+      
+      if (grid[row][col].equals(player.getPlayerName())) {
+        straight++;
+      }
+      else {
+        straight = 0;
+      }
+      
+      if (straight == Config.WIN_NUM) {
+        return true;
+      }
+      ++row;
+      ++col;
+    }
+    
+    // check top-right to bottom-left from top-left point
+    if (dropRow + dropCol < Config.NUM_COL) {
+      row = 0;
+      col = dropRow + dropCol;
+    }
+    else {
+      row = dropCol + dropRow - (Config.NUM_COL - 1);
+      col = Config.NUM_COL - 1;
+    }
+    while (row < Config.NUM_ROW && col < Config.NUM_COL &&
+        row >= 0 && col >=0) {
+      
+      if (grid[row][col].equals(player.getPlayerName())) {
+        straight++;
+      }
+      else {
+        straight = 0;
+      }
+      
+      if (straight == Config.WIN_NUM) {
+        return true;
+      }
+      ++row;
+      --col;
+    }
+    return false;
+  }
+
+  private boolean checkHorizontal(Player player, Coord drop) {
+    int straight = 0;
+    int dropRow = drop.getRow();
+    
+    for (int col = 0; col < Config.NUM_COL; col++) {
+      if (grid[dropRow][col].equals(player.getPlayerName())) {
+        straight++;
+      }
+      else {
+        straight = 0;
+      }
+      
+      if (straight == Config.WIN_NUM) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  private boolean checkVertical(Player player, Coord drop) {
+    int straight = 0;
+    int dropCol = drop.getCol();
+    
+    for (int row = 0; row < Config.NUM_ROW; row++) {
+      if (grid[row][dropCol].equals(player.getPlayerName())) {
+        straight++;
+      }
+      else {
+        straight = 0;
+      }
+      
+      if (straight == Config.WIN_NUM) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+
 }
