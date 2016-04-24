@@ -2,7 +2,8 @@ package pqs.ps4.connect4;
 
 import pqs.ps4.connect4.model.Config;
 import pqs.ps4.connect4.model.Model;
-import pqs.ps4.connect4.view.LoggerC4;
+import pqs.ps4.connect4.view.Log;
+import pqs.ps4.connect4.view.LogFactory;
 import pqs.ps4.connect4.view.View;
 
 public class ConnectFourApp {
@@ -19,8 +20,10 @@ public class ConnectFourApp {
 
   public void startGame() {
     Model model = new Model();
-    new View(model, "A", Config.PLAYERTYPE.PRIMARY, Config.COLOR.RED);
-    new LoggerC4(model, "log", Config.PLAYERTYPE.WATCH, null);
+    new View.Builder().model(model).viewName("A").playerType(Config.PLAYERTYPE
+        .PRIMARY).color(Config.COLOR.RED).player().build();
+    LogFactory logFactory = new LogFactory();
+    logFactory.getLog(model, null);
     model.startGame();
   }
   

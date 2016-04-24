@@ -1,6 +1,7 @@
 package pqs.ps4.connect4.model;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.UUID;
 
@@ -117,7 +118,8 @@ public class Model {
         case MULTI:
             currentMode = Config.PLAYMODE.MULTI;
             removeComputerPlayer();
-            new View(this, "B", Config.PLAYERTYPE.PLAY, Config.COLOR.YELLOW);
+            new View.Builder().model(this).viewName("B").playerType(Config
+                .PLAYERTYPE.PLAY).color(Config.COLOR.YELLOW).player().build();
           break;
         case SINGLE:
           currentMode = Config.PLAYMODE.SINGLE;
@@ -129,8 +131,15 @@ public class Model {
       }
     }
     
-    for (Listener lisenter: listeners) {
-      lisenter.modeUpdated(mode);
+    // "AWT-EventQueue-0" java.util.ConcurrentModificationException would be 
+    // thrown by removing a listener while iterating through, no harm 
+    try {
+      for (Listener lisenter: listeners) {
+        lisenter.modeUpdated(mode);
+      }
+    }
+    catch(ConcurrentModificationException ignored) {
+      
     }
   }
 }

@@ -35,18 +35,102 @@ public class View implements Listener {
   private JButton quitGameButton;
   private boolean[] colFilled; 
   
-  public View(Model model, String name, Config.PLAYERTYPE playerType, 
-      Config.COLOR color) {
+  /*
+   * Builder class for View
+   * viewName, playerType, color are called before player
+   */
+  public static class Builder {
     
-    this.model = model;
+    // Required parameters
+    private Model model;
+    private Player player;
+    private String viewName;
+    private Config.PLAYERTYPE playerType;
+    private Config.COLOR color;
+    // Optional parameters (no)
+    
+    public Builder model(Model model) {
+      if (model == null) {
+        throw new IllegalStateException("model cannot be null");
+      }
+      this.model = model;
+      return this;
+    }
+    
+    public Builder viewName(String viewName) {
+      if (viewName == null) {
+        throw new IllegalStateException("viewName cannot be null, can not " +
+            "play");
+      }
+      this.viewName = viewName;
+      return this;
+    }
+    
+    public Builder playerType(Config.PLAYERTYPE playerType) {
+      if (playerType == null) {
+        throw new IllegalStateException("playerType cannot be null");
+      }
+      this.playerType = playerType;
+      return this;
+    }
+    
+    public Builder color(Config.COLOR color) {
+      if (color == null) {
+        throw new IllegalStateException("color cannot be null, can not play");
+      }
+      this.color = color;
+      return this;
+    }
+    
+    public Builder player() {
+      if (this.viewName == null) {
+        throw new IllegalStateException("viewName cannot be null, can not " +
+            "play");
+      }
+      if (this.playerType == null) {
+        throw new IllegalStateException("playerType cannot be null");
+      }
+      if (this.color == null) {
+        throw new IllegalStateException("color cannot be null, can not play");
+      }
+      this.player = new Player(this.viewName, this.viewName, this.playerType, 
+          this.color);
+      return this;
+    }
+    
+    public View build() {
+      if (this.model == null) {
+        throw new IllegalStateException("Build failed: model cannot be null");
+      }
+      if (this.viewName == null) {
+        throw new IllegalStateException("viewName cannot be null, can not " +
+            "play");
+      }
+      if (this.playerType == null) {
+        throw new IllegalStateException("playerType cannot be null");
+      }
+      if (this.color == null) {
+        throw new IllegalStateException("color cannot be null, can not play");
+      }
+      if (this.player == null) {
+        throw new IllegalStateException("player cannot be null, can not play");
+      }
+      
+      return new View(this);
+    }
+  }
+  
+  private View(Builder builder) {
+    model = builder.model;
     model.addListener(this);
-    player = new Player(name, name, playerType, color);
+
+    player = builder.player;
     this.model.addPlayer(player);
     
-    frame = new JFrame("Connect Four");
+    frame = new JFrame("Connect Four - " + builder.viewName);
     gamePanel = new JPanel(new BorderLayout());
     dropPanel = new JPanel(new GridLayout(1, Config.NUM_COL));
-    if (playerType == Config.PLAYERTYPE.PRIMARY) {
+    if (builder.playerType == Config.PLAYERTYPE.PRIMARY) {
       dropPanel.setVisible(false);
     }
     
@@ -99,7 +183,7 @@ public class View implements Listener {
       }
     });
     
-    if (playerType == Config.PLAYERTYPE.PLAY) {
+    if (builder.playerType == Config.PLAYERTYPE.PLAY) {
       onePlayerButton.setVisible(false);
       twoPlayerButton.setVisible(false);
     }
@@ -173,8 +257,8 @@ public class View implements Listener {
 
   @Override
   public void win(Player player) {
-    statusLabel.setText(player.getPlayerName() + " won!");
-    dropPanel.setVisible(false);
+    this.statusLabel.setText(player.getPlayerName() + " won!");
+    this.dropPanel.setVisible(false);
   }
 
   @Override
@@ -183,17 +267,17 @@ public class View implements Listener {
     if (modeUpdate == Config.PLAYMODE.SINGLE && player.getPlayerType() == 
         Config.PLAYERTYPE.PLAY) {
       
-      model.removePlayer(player);
-      model.removeListener(this);
-      frame.dispose();
+      this.model.removePlayer(player);
+      this.model.removeListener(this);
+      this.frame.dispose();
     }
   }
 
   @Override
   public void discDropped(Player player, int row, int col) {
     this.cellList[row][col].setBackground(player.getColor());
-    statusLabel.setText(String.format("%s at [%d,%d]", player.getPlayerName(), 
-        row, col));
+    this.statusLabel.setText(String.format("%s at [%d,%d]", player.
+        getPlayerName(), row, col));
     if (row == 0) {
       this.colFilled[col] = true;
     }

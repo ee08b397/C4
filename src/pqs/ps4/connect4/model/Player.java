@@ -2,8 +2,6 @@ package pqs.ps4.connect4.model;
 
 import java.awt.Color;
 
-import pqs.ps4.connect4.model.Config.PLAYERTYPE;
-
 /*
  * playerId and playerType are not supposed to be changed, so final and no 
  * setter for them. A player can only be removed from list, not updated. 
