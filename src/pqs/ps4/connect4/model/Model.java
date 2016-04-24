@@ -30,7 +30,9 @@ public class Model {
   }
   
   public void startGame() {
-    
+    for (Listener lisenter: listeners) {
+      lisenter.gameStarted();
+    }
   }
   
   /*
@@ -38,10 +40,6 @@ public class Model {
    * to one player at a time. It means only the one player can drop disc has 
    * the drop panel shown;
    */
-  public void nextPlayerDrop() {
-    
-  }
-  
   public void dropDisc(Player player, int col) {
     int droppedRow = this.grid.dropDisc(player, col);
     boolean go = true;

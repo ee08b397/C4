@@ -52,9 +52,10 @@ public class Grid {
   private Coord checkWinDrop(Player player) {
     for (int row = 0; row < Config.NUM_ROW; row++) {
       for (int col = 0; col < Config.NUM_COL; col++) {
-        if (grid[row][col].equals("")) {
-          //grid[row][col] = player.getPlayerName();
-          //return new Coord(row, col);
+        if (grid[row][col].equals("") && checkAllConditions(player, new 
+            Coord(row, col)) == Config.PLAYRESULT.WIN) {
+          
+          return new Coord(row, col);
         }
       }
     } 
@@ -124,6 +125,7 @@ public class Grid {
     }
     
     // check top-right to bottom-left from top-left point
+    straight = 0;
     if (dropRow + dropCol < Config.NUM_COL) {
       row = 0;
       col = dropRow + dropCol;
@@ -191,5 +193,4 @@ public class Grid {
     return false;
   }
   
-
 }
