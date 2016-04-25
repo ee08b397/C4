@@ -93,7 +93,7 @@ public class View implements Listener {
       if (this.color == null) {
         throw new IllegalStateException("color cannot be null, can not play");
       }
-      this.player = new Player(this.viewName, this.viewName, this.playerType, 
+      this.player = new Player(this.viewName, this.playerType, 
           this.color);
       return this;
     }
@@ -121,53 +121,53 @@ public class View implements Listener {
   }
   
   private View(Builder builder) {
-    model = builder.model;
-    model.addListener(this);
+    this.model = builder.model;
+    this.model.addListener(this);
 
-    player = builder.player;
+    this.player = builder.player;
     this.model.addPlayer(player);
     
-    frame = new JFrame("Connect Four - " + builder.viewName);
-    gamePanel = new JPanel(new BorderLayout());
-    dropPanel = new JPanel(new GridLayout(1, Config.NUM_COL));
+    this.frame = new JFrame("Connect Four - " + builder.viewName);
+    this.gamePanel = new JPanel(new BorderLayout());
+    this.dropPanel = new JPanel(new GridLayout(1, Config.NUM_COL));
     if (builder.playerType == Config.PLAYERTYPE.PRIMARY) {
-      dropPanel.setVisible(false);
+      this.dropPanel.setVisible(false);
     }
     
-    dropButtonList = new JButton[Config.NUM_COL];
-    colFilled = new boolean[Config.NUM_COL]; 
+    this.dropButtonList = new JButton[Config.NUM_COL];
+    this.colFilled = new boolean[Config.NUM_COL]; 
     for (int col = 0; col < dropButtonList.length; col++) {
-      dropButtonList[col] = new JButton("Drop " + col);
-      dropButtonList[col].addActionListener(new ActionListener() {
+      this.dropButtonList[col] = new JButton("Drop " + col);
+      this.dropButtonList[col].addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent event) {
           String[] dropCmd = event.getActionCommand().split(" ");
           dropButtonClicked(Integer.parseInt(dropCmd[1]));
         }
       });
-      dropPanel.add(dropButtonList[col]);
+      this.dropPanel.add(dropButtonList[col]);
       this.colFilled[col] = false;
     }
     
-    gridPanel = new JPanel(new GridLayout(
+    this.gridPanel = new JPanel(new GridLayout(
         Config.NUM_ROW, Config.NUM_COL));
-    cellList = new JPanel[Config.NUM_ROW][Config.NUM_COL];
+    this.cellList = new JPanel[Config.NUM_ROW][Config.NUM_COL];
     
-    for (int row = 0; row < cellList.length; row++) {
-      for (int col = 0; col < cellList[row].length; col++) {
-        cellList[row][col] = new JPanel();
-        cellList[row][col].setBorder(
+    for (int row = 0; row < this.cellList.length; row++) {
+      for (int col = 0; col < this.cellList[row].length; col++) {
+        this.cellList[row][col] = new JPanel();
+        this.cellList[row][col].setBorder(
             BorderFactory.createLineBorder(Color.black, 1, true));
-        gridPanel.add(cellList[row][col]);
+        this.gridPanel.add(this.cellList[row][col]);
       }
     }
     
-    gmaeControlPanel = new JPanel(new GridLayout(1, 4));
-    statusLabel = new JLabel("Hello");
-    onePlayerButton = new JButton("One Player");
-    twoPlayerButton = new JButton("Two Player");
-    quitGameButton = new JButton("Quit Game");
+    this.gmaeControlPanel = new JPanel(new GridLayout(1, 4));
+    this.statusLabel = new JLabel("Hello");
+    this.onePlayerButton = new JButton("One Player");
+    this.twoPlayerButton = new JButton("Two Player");
+    this.quitGameButton = new JButton("Quit Game");
     
-    onePlayerButton.addActionListener(new ActionListener() {
+    this.onePlayerButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
         initializePanel();
         modeButtonClicked(Config.PLAYMODE.SINGLE);
@@ -175,7 +175,7 @@ public class View implements Listener {
       }
     });
     
-    twoPlayerButton.addActionListener(new ActionListener() {
+    this.twoPlayerButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
         initializePanel();
         modeButtonClicked(Config.PLAYMODE.MULTI);
@@ -184,37 +184,37 @@ public class View implements Listener {
     });
     
     if (builder.playerType == Config.PLAYERTYPE.PLAY) {
-      onePlayerButton.setVisible(false);
-      twoPlayerButton.setVisible(false);
+      this.onePlayerButton.setVisible(false);
+      this.twoPlayerButton.setVisible(false);
     }
     
-    quitGameButton.addActionListener(new ActionListener() {
+    this.quitGameButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent event) {
         System.exit(0);
       }
     });
     
-    gmaeControlPanel.add(statusLabel);
-    gmaeControlPanel.add(onePlayerButton);
-    gmaeControlPanel.add(twoPlayerButton);
-    gmaeControlPanel.add(quitGameButton);
+    this.gmaeControlPanel.add(statusLabel);
+    this.gmaeControlPanel.add(onePlayerButton);
+    this.gmaeControlPanel.add(twoPlayerButton);
+    this.gmaeControlPanel.add(quitGameButton);
     
-    gamePanel.add(dropPanel, BorderLayout.NORTH);
-    gamePanel.add(gridPanel, BorderLayout.CENTER);
-    gamePanel.add(gmaeControlPanel, BorderLayout.SOUTH);
-    frame.getContentPane().add(gamePanel);
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
-    frame.setVisible(true);
+    this.gamePanel.add(dropPanel, BorderLayout.NORTH);
+    this.gamePanel.add(gridPanel, BorderLayout.CENTER);
+    this.gamePanel.add(gmaeControlPanel, BorderLayout.SOUTH);
+    this.frame.getContentPane().add(gamePanel);
+    this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    this.frame.setSize(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
+    this.frame.setVisible(true);
   }
   
   private void modeButtonClicked(Config.PLAYMODE mode) {
-    model.modeUpdate(mode, player);
+    this.model.modeUpdate(mode, this.player);
   }
   
   private void dropButtonClicked(int col) {
     lockDropPanel();
-    model.dropDisc(this.player, col);
+    this.model.dropDisc(this.player, col);
   }
   
   private void initializePanel() {
@@ -222,37 +222,37 @@ public class View implements Listener {
       this.colFilled[index] = false;
     }
     unlockDropPanel();
-    for (JPanel[] rowList : cellList) {
+    for (JPanel[] rowList : this.cellList) {
       for (JPanel cell : rowList) {
         cell.setBackground(UIManager.getColor("Panel.background"));
       }
     }
-    statusLabel.setText("Hello");
+    this.statusLabel.setText("Hello");
   }
   
   private void unlockDropPanel() {
-    dropPanel.setVisible(true);
-    for (int col = 0; col < dropButtonList.length; col++) {
+    this.dropPanel.setVisible(true);
+    for (int col = 0; col < this.dropButtonList.length; col++) {
       if (this.colFilled[col] == false) {
-        dropButtonList[col].setEnabled(true);
+        this.dropButtonList[col].setEnabled(true);
       }
     }
   }
   
   private void lockDropPanel() {
-    for (JButton dropButton : dropButtonList) {
+    for (JButton dropButton : this.dropButtonList) {
       dropButton.setEnabled(false);
     }
   }
   
   @Override
   public void gameStarted() {
-    dropPanel.setVisible(false);
+    this.dropPanel.setVisible(false);
   }
 
   @Override
   public void draw() {
-    dropPanel.setVisible(false);
+    this.dropPanel.setVisible(false);
   }
 
   @Override

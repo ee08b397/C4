@@ -28,4 +28,8 @@ public class Coord {
   public int getCol() {
     return new Integer(this.col);
   }
+  
+  public String toString() {
+    return String.format("[%d,%d]", this.row, this.col);
+  }
 }

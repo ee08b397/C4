@@ -8,7 +8,7 @@ public class Grid {
   private String[][] grid;
   
   private Grid() {
-    grid = new String[Config.NUM_ROW][Config.NUM_COL];
+    this.grid = new String[Config.NUM_ROW][Config.NUM_COL];
     initialize();
   }
 
@@ -18,8 +18,8 @@ public class Grid {
   
   public int dropDisc(Player player, int col) {
     for (int row = Config.NUM_ROW - 1; row >= 0; row--) {
-      if (grid[row][col].equals("")) {
-        grid[row][col] = player.getPlayerName();
+      if (this.grid[row][col].equals("")) {
+        this.grid[row][col] = player.getPlayerName();
         return row;
       }
     }
@@ -27,9 +27,9 @@ public class Grid {
   }
 
   public void initialize() {
-    for (int row = 0; row < grid.length; row++) {
-      for (int col = 0; col < grid[row].length; col++) {
-        grid[row][col] = "";
+    for (int row = 0; row < this.grid.length; row++) {
+      for (int col = 0; col < this.grid[row].length; col++) {
+        this.grid[row][col] = "";
       }
     }
   }
@@ -52,7 +52,7 @@ public class Grid {
   private Coord checkWinDrop(Player player) {
     for (int row = 0; row < Config.NUM_ROW; row++) {
       for (int col = 0; col < Config.NUM_COL; col++) {
-        if (grid[row][col].equals("") && checkAllConditions(player, new 
+        if (this.grid[row][col].equals("") && checkAllConditions(player, new 
             Coord(row, col)) == Config.PLAYRESULT.WIN) {
           
           return new Coord(row, col);
@@ -63,13 +63,13 @@ public class Grid {
   }
   
   public Config.PLAYRESULT checkAllConditions(Player player, Coord drop) {
+    if (checkDraw()) {
+      return Config.PLAYRESULT.DRAW;
+    }
     if (checkVertical(player, drop) || checkHorizontal(player, drop) ||
         checkDiagonal(player, drop)) {
       
       return Config.PLAYRESULT.WIN;
-    }
-    if (checkDraw()) {
-      return Config.PLAYRESULT.DRAW;
     }
     return Config.PLAYRESULT.GO;
   }
@@ -78,7 +78,7 @@ public class Grid {
     int emptySlotNum = 0;
     for (int row = 0; row < Config.NUM_ROW; row++) {
       for (int col = 0; col < Config.NUM_COL; col++) {
-        if (grid[row][col].equals("")) {
+        if (this.grid[row][col].equals("")) {
           emptySlotNum++;
         }
       }
@@ -100,17 +100,17 @@ public class Grid {
     
     // check top-left to bottom-right from top-left point
     if (dropRow >= dropCol) {
-      row = 0;
-      col = dropRow - dropCol;
+      row = dropRow - dropCol;
+      col = 0;
     }
     else {
-      row = dropCol - dropRow;
-      col = 0;
+      row = 0;
+      col = dropCol - dropRow;
     }
     while (row < Config.NUM_ROW && col < Config.NUM_COL &&
         row >= 0 && col >=0) {
       
-      if (grid[row][col].equals(player.getPlayerName())) {
+      if (this.grid[row][col].equals(player.getPlayerName())) {
         straight++;
       }
       else {
@@ -137,7 +137,7 @@ public class Grid {
     while (row < Config.NUM_ROW && col < Config.NUM_COL &&
         row >= 0 && col >=0) {
       
-      if (grid[row][col].equals(player.getPlayerName())) {
+      if (this.grid[row][col].equals(player.getPlayerName())) {
         straight++;
       }
       else {
@@ -158,7 +158,7 @@ public class Grid {
     int dropRow = drop.getRow();
     
     for (int col = 0; col < Config.NUM_COL; col++) {
-      if (grid[dropRow][col].equals(player.getPlayerName())) {
+      if (this.grid[dropRow][col].equals(player.getPlayerName())) {
         straight++;
       }
       else {
@@ -178,7 +178,7 @@ public class Grid {
     int dropCol = drop.getCol();
     
     for (int row = 0; row < Config.NUM_ROW; row++) {
-      if (grid[row][dropCol].equals(player.getPlayerName())) {
+      if (this.grid[row][dropCol].equals(player.getPlayerName())) {
         straight++;
       }
       else {
@@ -191,6 +191,20 @@ public class Grid {
     }
     
     return false;
+  }
+  
+  public String toString() {
+    String out = "";
+    
+    for (int row = 0; row < Config.NUM_ROW; row++) {
+      out += "Row " + row + " |  ";
+      for (int col = 0; col < Config.NUM_COL; col++) {
+        out += this.grid[row][col].toString() + " ";
+      }
+      out += "\n";
+    }
+    
+    return out;
   }
   
 }

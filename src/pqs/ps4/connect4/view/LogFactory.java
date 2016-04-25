@@ -10,11 +10,13 @@ public class LogFactory {
       if (model == null) {
         return null;
       }
+      
       if (handler != null) {
         return new Log(model, handler);
-      } else if (handler == null) {
+      } 
+      else {
         return new Log(model, null);
       }
-      return null;
     }
+    
 }

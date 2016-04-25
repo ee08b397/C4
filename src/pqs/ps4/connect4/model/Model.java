@@ -13,21 +13,16 @@ public class Model {
   private List<Listener> listeners = new ArrayList<Listener>();
   private List<Player> players = new ArrayList<Player>();
   private Grid grid = Grid.getInstance();
-  private Player computer = new Player("C", "C", Config.PLAYERTYPE.COMPUTER, 
+  private Player computer = new Player("C", Config.PLAYERTYPE.COMPUTER, 
       Config.COLOR.BLUE);
   private Config.PLAYMODE currentMode = Config.PLAYMODE.SINGLE;
   
   public void addListener(Listener listener) {
-    listeners.add(listener);
+    this.listeners.add(listener);
   }
   
   public void removeListener(Listener listener) {
-    listeners.remove(listener);
-  }
-  
-  private String generateNewPlayerId() {
-    UUID playerId = UUID.randomUUID();
-    return String.valueOf(playerId);
+    this.listeners.remove(listener);
   }
   
   public void startGame() {
@@ -45,7 +40,7 @@ public class Model {
     int droppedRow = this.grid.dropDisc(player, col);
     boolean go = true;
     if (droppedRow > -1) {
-      for (Listener lisenter: listeners) {
+      for (Listener lisenter: this.listeners) {
         lisenter.discDropped(player, droppedRow, col);
       }
       
@@ -55,12 +50,13 @@ public class Model {
     
     if (this.currentMode == Config.PLAYMODE.SINGLE && go) {
       try {
-        Thread.sleep(50);
+        // to simulate computer "think" about next step
+        Thread.sleep(100);
       } catch (InterruptedException ignored) {
       }
       
       Coord droppedComputer = this.grid.dropDiscComputer(this.computer);
-      for (Listener lisenter: listeners) {
+      for (Listener lisenter: this.listeners) {
         lisenter.discDropped(this.computer, droppedComputer.getRow(), 
             droppedComputer.getCol());
       }
@@ -75,12 +71,12 @@ public class Model {
     Config.PLAYRESULT result = this.grid.checkAllConditions(player, dropCoord);
     switch(result) {
       case WIN:
-        for (Listener lisenter: listeners) {
+        for (Listener lisenter: this.listeners) {
           lisenter.win(player);
         }
         return false;
       case DRAW:
-        for (Listener lisenter: listeners) {
+        for (Listener lisenter: this.listeners) {
           lisenter.draw();
         }
         return false;
@@ -116,13 +112,13 @@ public class Model {
     if (this.currentMode != mode) {
       switch(mode) {
         case MULTI:
-            currentMode = Config.PLAYMODE.MULTI;
+          this.currentMode = Config.PLAYMODE.MULTI;
             removeComputerPlayer();
             new View.Builder().model(this).viewName("B").playerType(Config
                 .PLAYERTYPE.PLAY).color(Config.COLOR.YELLOW).player().build();
           break;
         case SINGLE:
-          currentMode = Config.PLAYMODE.SINGLE;
+          this.currentMode = Config.PLAYMODE.SINGLE;
             // PLAY Views will remove themselves in modeUpdated()
             addComputerPlayer();
           break;
@@ -134,7 +130,7 @@ public class Model {
     // "AWT-EventQueue-0" java.util.ConcurrentModificationException would be 
     // thrown by removing a listener while iterating through, no harm 
     try {
-      for (Listener lisenter: listeners) {
+      for (Listener lisenter: this.listeners) {
         lisenter.modeUpdated(mode);
       }
     }
@@ -142,4 +138,5 @@ public class Model {
       
     }
   }
+  
 }
