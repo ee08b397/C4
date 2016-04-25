@@ -17,11 +17,29 @@ import pqs.ps4.connect4.model.Config;
 import pqs.ps4.connect4.model.Model;
 import pqs.ps4.connect4.model.Player;
 
+/**
+ * View of Connect Four game. View is built by Builder. Initiate a primary view
+ * at first. 
+ * E.g., <code>new View.Builder().model(model).viewName("A").playerType(Config.
+        PLAYERTYPE.PRIMARY).color(Config.COLOR.RED).player().build();</code>
+ * <p>
+ * Use default Equals(), toString(), hashCode() as default is good.
+ * 
+ * @author Songxiao Zhang
+ *
+ */
 public class View implements Listener {
 
+  /** 
+   * model is an implementation of Model in Observer pattern, it listens. 
+   */
   private Model model;
+  /**
+   * player is the role of user, it plays the game one by one. 
+   */
   private final Player player;
   
+  /** java.swing components */
   private JFrame frame;
   private JPanel gamePanel;
   private JPanel dropPanel;
@@ -33,11 +51,13 @@ public class View implements Listener {
   private JButton onePlayerButton;
   private JButton twoPlayerButton;
   private JButton quitGameButton;
+  
+  /** when a column is filled up, its value is true in colFilled */
   private boolean[] colFilled; 
   
-  /*
-   * Builder class for View
-   * viewName, playerType, color are called before player
+  /**
+   * Builder class for View and its player
+   * Note: viewName, playerType, color are called before player
    */
   public static class Builder {
     
@@ -49,6 +69,12 @@ public class View implements Listener {
     private Config.COLOR color;
     // Optional parameters (no)
     
+    /**
+     * Build model for View
+     * 
+     * @param model  set the model in observer pattern
+     * @return       the view builder with model
+     */
     public Builder model(Model model) {
       if (model == null) {
         throw new IllegalStateException("model cannot be null");
@@ -57,6 +83,13 @@ public class View implements Listener {
       return this;
     }
     
+    /**
+     * Build viewName of player for View
+     * 
+     * @param viewName                set the viewName of player
+     * @return                        the view builder with viewName
+     * @throws IllegalStateException  If viewName is null
+     */
     public Builder viewName(String viewName) {
       if (viewName == null) {
         throw new IllegalStateException("viewName cannot be null, can not " +
@@ -66,6 +99,13 @@ public class View implements Listener {
       return this;
     }
     
+    /**
+     * Build playerType of player for View
+     * 
+     * @param playerType              set the viewName of player
+     * @return                        the view builder with playerType
+     * @throws IllegalStateException  If playerType is null
+     */
     public Builder playerType(Config.PLAYERTYPE playerType) {
       if (playerType == null) {
         throw new IllegalStateException("playerType cannot be null");
@@ -74,6 +114,13 @@ public class View implements Listener {
       return this;
     }
     
+    /**
+     * Build color of player disc for View
+     * 
+     * @param color                   set the color of player
+     * @return                        the view builder with player disc color
+     * @throws IllegalStateException  If color is null
+     */
     public Builder color(Config.COLOR color) {
       if (color == null) {
         throw new IllegalStateException("color cannot be null, can not play");
@@ -82,6 +129,15 @@ public class View implements Listener {
       return this;
     }
     
+    /**
+     * Build the player for View. Note: viewName, playerType, color are called 
+     * beforehand
+     * 
+     * @return                        the view builder with player 
+     * @throws IllegalStateException  If viewName is null
+     * @throws IllegalStateException  If playerType is null
+     * @throws IllegalStateException  If color is null
+     */
     public Builder player() {
       if (this.viewName == null) {
         throw new IllegalStateException("viewName cannot be null, can not " +
@@ -98,6 +154,17 @@ public class View implements Listener {
       return this;
     }
     
+    /**
+     * Build the View. Note: viewName, playerType, color, player are called
+     * beforehand. 
+     * 
+     * @return                        the view builder
+     * @throws IllegalStateException  If model is null
+     * @throws IllegalStateException  If viewName is null
+     * @throws IllegalStateException  If playerType is null
+     * @throws IllegalStateException  If color is null
+     * @throws IllegalStateException  If player is null
+     */
     public View build() {
       if (this.model == null) {
         throw new IllegalStateException("Build failed: model cannot be null");
@@ -120,6 +187,21 @@ public class View implements Listener {
     }
   }
   
+  /**
+   * Make a new View by View builder. The view has a grid for all disc slots. 
+   * The view is first controlled by primary player and if multiple player 
+   * mode is used, a new player view is generated. Otherwise, primary player is
+   * playing with a computer player. 
+   * <p>
+   * A user can click "One Player" or "Two Player" to set the game mode or start
+   * a new game. "Quit" at any time. Click "Drop N" where N is int to drop 
+   * discs at a column to the bottom. The first player got Config.WIN_NUM of 
+   * discs in a row/column/diagonal wins. If all blanks are filled, game draw. 
+   * Please look at the status bar on bottom left all the time for status 
+   * information. 
+   *  
+   * @param builder  the view and player builder
+   */
   private View(Builder builder) {
     this.model = builder.model;
     this.model.addListener(this);
@@ -208,15 +290,30 @@ public class View implements Listener {
     this.frame.setVisible(true);
   }
   
+  /**
+   * "One Player" or "Two Player" clicked, player wants to 
+   * change mode and starts a new game.  
+   * 
+   * @param mode    game mode (1-1 or 1-computer)
+   */
   private void modeButtonClicked(Config.PLAYMODE mode) {
     this.model.modeUpdate(mode, this.player);
   }
   
+  /**
+   * Drop disc button is clicked, with a column number
+   * 
+   * @param col     the column number of dropping disc
+   */
   private void dropButtonClicked(int col) {
     lockDropPanel();
     this.model.dropDisc(this.player, col);
   }
   
+  /**
+   * Initialize game panel: set all columns unfilled and unlock all drop 
+   * buttons; reset cell color and status bar message.  
+   */
   private void initializePanel() {
     for (int index = 0; index < this.colFilled.length; index++) {
       this.colFilled[index] = false;
@@ -230,6 +327,9 @@ public class View implements Listener {
     this.statusLabel.setText("Hello");
   }
   
+  /**
+   * Unlock drop buttons only for unfilled columns.  
+   */
   private void unlockDropPanel() {
     this.dropPanel.setVisible(true);
     for (int col = 0; col < this.dropButtonList.length; col++) {
@@ -239,6 +339,9 @@ public class View implements Listener {
     }
   }
   
+  /**
+   * Disable all drop buttons. Game not started or not current player's turn. 
+   */
   private void lockDropPanel() {
     for (JButton dropButton : this.dropButtonList) {
       dropButton.setEnabled(false);
